@@ -57,6 +57,18 @@ class ChannelDownsampling:
     def __call__(self, data: torch.Tensor) -> torch.Tensor:
         return data[:, :: self.downsampling]
 
+@dataclass
+class AggressiveChannelMasking:
+    """Aggressively mask out channels."""
+    
+    mask_ratio: float = 0.0
+
+    def __call__(self, data: torch.Tensor) -> torch.Tensor:
+        mask = np.random.randint(3)
+        if not mask: # 1/3 chance to mask
+            idx = np.random.choice(data.shape[-1], size=int(data.shape[-1] * self.mask_ratio), replace=False)
+            data[..., idx] = 0.0
+        return data
 
 @dataclass
 class Compose:
